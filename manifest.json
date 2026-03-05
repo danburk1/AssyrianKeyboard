@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Assyrian Keyboard Swap",
+  "version": "1.0",
+  "description": "Toggle between English and Assyrian keyboard mappings.",
+  "permissions": [
+    "storage"
+  ],
+  "action": {
+    "default_title": "Toggle Assyrian Keyboard"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
