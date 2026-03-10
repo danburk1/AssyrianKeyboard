@@ -1,22 +1,22 @@
 {
   "manifest_version": 3,
-  "name": "Assyrian Keyboard Swap",
+  "name": "Syriac ChromeOS Keyboard",
   "version": "1.0",
-  "description": "Toggle between English and Assyrian keyboard mappings.",
+  "description": "Native Syriac input method for ChromeOS.",
   "permissions": [
-    "storage"
+    "input"
   ],
-  "action": {
-    "default_title": "Toggle Assyrian Keyboard"
-  },
   "background": {
     "service_worker": "background.js"
   },
-  "content_scripts": [
+  "input_components": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "run_at": "document_idle"
+      "name": "Syriac",
+      "type": "ime",
+      "id": "syriac_keyboard",
+      "description": "Syriac Keyboard Layout",
+      "language": "syr",
+      "layouts": ["us"]
     }
   ]
 }
