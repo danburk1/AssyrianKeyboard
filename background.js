@@ -1,21 +1,55 @@
-chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.local.set({ isAssyrianEnabled: false });
+let contextID = -1;
+
+chrome.input.ime.onFocus.addListener(function(context) {
+    contextID = context.contextID;
 });
 
-chrome.action.onClicked.addListener(async (tab) => {
-    const data = await chrome.storage.local.get('isAssyrianEnabled');
-    const newState = !data.isAssyrianEnabled;
-    await chrome.storage.local.set({ isAssyrianEnabled: newState });
-});
+const regMap = {
+    'a': 'ܐ', 'b': 'ܒ', 'g': 'ܓ', 'd': 'ܕ',
+    'h': 'ܗ', 'w': 'ܘ', 'z': 'ܙ', 'k': 'ܟ',
+    'm': 'ܡ', 'n': 'ܢ', 'p': 'ܦ', 't': 'ܬ',
+    'q': 'ܩ', 'r': 'ܪ', 'f': 'ܫ', 'x': 'ܚ',
+    's': 'ܣ', 'j': 'ܓ̰', 'c': 'ܨ', 'u': 'ܘܼ', 'o': 'ܘܿ',
+    'e': 'ܥ', 'y': 'ܝ', 'l': 'ܠ', 'i': 'ܝܼ', 'v': 'ܛ',
+    ',': '،', '.': '.', '!': '!',
+    '`': '̰', '2': 'ܵ', '1': 'ܲ', '3': 'ܸ', '4': 'ܹ', '5': 'ܿ', '6': 'ܼ', '7': '̇', '8': '̣', '9': '̈', '0': '̤',
+    '\\': '݇'
+};
 
-chrome.storage.onChanged.addListener((changes, namespace) => {
-    if (namespace === 'local' && changes.isAssyrianEnabled !== undefined) {
-        const isEnabled = changes.isAssyrianEnabled.newValue;
-        if (isEnabled) {
-            chrome.action.setBadgeText({ text: 'ON' });
-            chrome.action.setBadgeBackgroundColor({ color: '#4CAF50' });
-        } else {
-            chrome.action.setBadgeText({ text: '' });
-        }
+const shiftMap = {
+    '~': '̮',
+    'g': 'ܓ̣',
+    'b': 'ܒ̣',
+    'p': 'ܦ̮',
+    'o': 'ܘܼ',
+    '?': '؟'
+};
+
+chrome.input.ime.onKeyEvent.addListener(function(engineID, keyData) {
+    if (keyData.type !== 'keydown') {
+        return false; 
     }
+
+    if (keyData.ctrlKey || keyData.altKey || keyData.metaKey) {
+        return false;
+    }
+
+    const keyLower = keyData.key.toLowerCase();
+    let mappedChar = null;
+
+    if (!keyData.shiftKey && regMap[keyLower]) {
+        mappedChar = regMap[keyLower];
+    } else if (keyData.shiftKey) {
+        mappedChar = shiftMap[keyLower] || shiftMap[keyData.key];
+    }
+
+    if (mappedChar) {
+        chrome.input.ime.commitText({
+            contextID: contextID,
+            text: mappedChar
+        });
+        return true;
+    }
+
+    return false; 
 });
