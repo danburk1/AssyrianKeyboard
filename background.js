@@ -1,5 +1,10 @@
 let contextID = -1;
 
+//Prevent background.js from sleeping.
+setInterval(() => {
+  chrome.runtime.getPlatformInfo(() => {});
+}, 15000);
+
 chrome.input.ime.onFocus.addListener(function(context) {
     contextID = context.contextID;
 });
@@ -28,6 +33,10 @@ const shiftMap = {
 chrome.input.ime.onKeyEvent.addListener(function(engineID, keyData) {
     if (keyData.type !== 'keydown') {
         return false; 
+    }
+
+    if (contextID == 0){
+        return false;
     }
 
     if (keyData.ctrlKey || keyData.altKey || keyData.metaKey) {
